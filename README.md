@@ -34,3 +34,7 @@ Go to "Install Packages" and search for atom-react-preview
 ## Toggle React Preview ##
 
 Press `CTRL-SHIFT-M` in the editor to open the preview pane.
+
+## Thanks
+
+Thanks to https://github.com/webBoxio/atom-html-preview which 90% of the code is coming from. It got me to understand how Atom packages works and served as a base for this package. Thanks @webBoxio!
