@@ -1,7 +1,7 @@
 {
   "name": "atom-react-preview",
   "main": "./lib/atom-react-preview",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A live preview tool for Atom Editor.",
   "repository": {
     "type": "git",
