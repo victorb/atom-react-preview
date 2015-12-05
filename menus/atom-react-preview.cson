@@ -1,0 +1,16 @@
+'context-menu':
+  'atom-text-editor': [
+    {label: 'Preview React Component', command: 'atom-react-preview:toggle'}
+  ]
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Preview React Component'
+      'submenu': [
+        { 'label': 'Toggle React Component Preview', 'command': 'atom-react-preview:toggle' }
+      ]
+    ]
+  }
+]
