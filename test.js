@@ -1,5 +1,5 @@
 'use babel'
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 
 export default class Name extends Component {
   render () {
@@ -19,10 +19,14 @@ export default class Name extends Component {
   }
 }
 Name.propTypes = {
-  name: React.PropTypes.string,
-  age: React.PropTypes.string // Only got String so far...
+  name: PropTypes.string,
+  kids: PropTypes.array,
+  age: PropTypes.number,
+  is_tired: PropTypes.bool
 }
 Name.defaultProps = {
   name: 'Victor',
-  age: '18'
+  pets: ['Gaia'],
+  age: 18,
+  is_tired: false
 }

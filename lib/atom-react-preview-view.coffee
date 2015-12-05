@@ -115,7 +115,10 @@ class AtomReactPreviewView extends ScrollView
       # Allows for the use of relative resources (scripts, styles)
       iframe.setAttribute("sandbox", "allow-scripts allow-same-origin")
 
-      subcomponent_to_render = React.createElement(require(path), @componentState)
+      try
+        subcomponent_to_render = React.createElement(require(path), @componentState)
+      catch err
+        atom.notifications.addError('Error parsing React component!', {detail: 'Something went wrong rendering your component "'+@editor.getTitle()+'"\n\n\nCheck for syntax-errors.\n\n\n Full Message:\n\n\n' + err.toString(), dismissable: true})
       component_to_render = React.createElement(renderer, {
         dispatch: @updateComponents.bind(this)
         component_props: @componentState
