@@ -1,4 +1,4 @@
-# Atom React Preview
+# Atom React Preview - [Github](https://github.com/VictorBjelkholm/atom-react-preview) - [Atom.io](https://atom.io/packages/atom-react-preview)
 
 A previewing tool for React Components. Works best for stateless components.
 
