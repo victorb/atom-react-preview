@@ -2,6 +2,9 @@
 import React, { Component, PropTypes } from 'react'
 
 export default class Name extends Component {
+  printTired () {
+    return this.props.is_tired ? 'You are tired' : 'You are not tired...'
+  }
   render () {
     const style = {
       color: 'white',
@@ -12,6 +15,11 @@ export default class Name extends Component {
       margin: '10px',
       color: '#9f9'
     }
+    let nums = []
+    for (var i = 1; i < this.props.number + 1; i++) {
+      nums.push(i)
+    }
+
     let warning = null
     if (this.props.show_warning) {
       const warning_style = {
@@ -32,13 +40,19 @@ export default class Name extends Component {
         You have {this.props.pets.length} pet...
       </div>
       <div style={shared_style}>
-        Is it true that you are tired? {this.props.is_tired.toString()}
+        { this.printTired.bind(this)() }
       </div>
+      {(function () {
+        return nums.map((i) => {
+          return <div>{i}</div>
+        })
+      })()}
     </div>
   }
 }
 Name.propTypes = {
   name: PropTypes.string,
+  number: PropTypes.number,
   pets: PropTypes.array,
   age: PropTypes.number,
   is_tired: PropTypes.bool,
@@ -46,6 +60,7 @@ Name.propTypes = {
 }
 Name.defaultProps = {
   name: 'Victor',
+  number: 5,
   pets: ['Gaia'],
   age: 18,
   is_tired: false,
