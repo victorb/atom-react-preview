@@ -28,16 +28,23 @@ export default class Name extends Component {
       }
       warning = <div style={warning_style}>WARNING! Content here might or might not be true...</div>
     }
+    let pet_or_pets = 'pets'
+    if (this.props.pets.length === 1) {
+      pet_or_pets = 'pet'
+    }
     return <div style={style}>
       {warning}
       <div style={shared_style}>
-        Hello, {this.props.name}
+        Hello, {this.props.name.toUpperCase()}
       </div>
       <div style={shared_style}>
         You are {this.props.age} years old.
       </div>
       <div style={shared_style}>
-        You have {this.props.pets.length} pet...
+        You have {this.props.pets.length} {pet_or_pets}...
+        {this.props.pets.map((pet) => {
+          return <div>One is {pet}</div>
+        })}
       </div>
       <div style={shared_style}>
         { this.printTired.bind(this)() }
