@@ -1,5 +1,5 @@
-'use babel'
 import React, { Component, PropTypes } from 'react'
+'heyo5'
 
 export default class Name extends Component {
   printTired () {
@@ -8,11 +8,11 @@ export default class Name extends Component {
   render () {
     const style = {
       color: 'white',
-      backgroundColor: 'black',
+      backgroundColor: 'grey',
       padding: '50px'
     }
     const shared_style = {
-      margin: '10px',
+      margin: '15px',
       color: '#9f9'
     }
     let nums = []
@@ -35,7 +35,7 @@ export default class Name extends Component {
     return <div style={style}>
       {warning}
       <div style={shared_style}>
-        Hello, {this.props.name.toUpperCase()}
+        Hello, {this.props.name}
       </div>
       <div style={shared_style}>
         You are {this.props.age} years old.

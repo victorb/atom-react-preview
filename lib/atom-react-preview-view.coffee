@@ -1,4 +1,5 @@
-fs                    = require 'fs'
+fs = require 'fs'
+fse = require 'fs-extra'
 {CompositeDisposable, Disposable} = require 'atom'
 {$, $$$, ScrollView}  = require 'atom-space-pen-views'
 path                  = require 'path'
@@ -10,6 +11,7 @@ babel = require('babel-core')
 find_component_proptypes = require('./find_component_proptypes')
 renderer = require('./renderer')
 window.find_component_proptypes = find_component_proptypes
+tmpDir = os.tmpdir()
 
 module.exports =
 class AtomReactPreviewView extends ScrollView
@@ -108,15 +110,27 @@ class AtomReactPreviewView extends ScrollView
 
   renderHTMLCode: () ->
     path = @editor.getPath()
-    delete require.cache[path]
+    tmpFile = tmpDir + '/tmpReactComponent.js'
     if not atom.config.get("atom-react-preview.triggerOnSave") and @editor.getPath()? then @save () =>
       iframe = document.createElement("iframe")
       # Fix from @kwaak (https://github.com/webBoxio/atom-html-preview/issues/1/#issxuecomment-49639162)
       # Allows for the use of relative resources (scripts, styles)
       iframe.setAttribute("sandbox", "allow-scripts allow-same-origin")
 
+
+      # We need to use a temporary file to be able to compile with babel in atom...
+      fs.unlinkSync(tmpFile)
+      data = fs.readFileSync(path)
+      fd = fs.openSync(tmpFile, 'w+')
+      buffer = new Buffer("'use babel';\n")
+      fs.writeSync(fd, buffer, 0, buffer.length)
+      fs.writeSync(fd, data, 0, data.length)
+      fs.close(fd)
+
       try
-        subcomponent_to_render = React.createElement(require(path), @componentState)
+        # TODO WHAT?! Why require places the cache in /private? Who knows...
+        delete require.cache['/private' + tmpFile]
+        subcomponent_to_render = React.createElement(require(tmpFile), @componentState)
       catch err
         atom.notifications.addError('Error parsing React component!', {detail: 'Something went wrong rendering your component "'+@editor.getTitle()+'"\n\n\nCheck for syntax-errors.\n\n\n Full Message:\n\n\n' + err.toString(), dismissable: true})
       component_to_render = React.createElement(renderer, {
