@@ -125,7 +125,7 @@ class AtomReactPreviewView extends ScrollView
         }, subcomponent_to_render)
       #component_to_render = React.createElement(require(path))
       html_string = ReactDOMServer.renderToString(component_to_render)
-      iframe.src = "data:text/html;charset=utf-8," + escape(html_string);
+      iframe.src = "data:text/html;charset=utf-8," + html_string;
       @html $ iframe
       window.component_to_render = component_to_render
       window.React = React
