@@ -1,3 +1,4 @@
+# TODO Fix this file to be A LOT simpler. There is things here that should be nowhere really
 url                   = require 'url'
 {CompositeDisposable} = require 'atom'
 
@@ -32,6 +33,7 @@ module.exports =
       catch error
         return
 
+      console.log('Opener')
       if host is 'editor'
         new ReactPreviewView(editorId: pathname.substring(1))
       else

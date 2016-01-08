@@ -1,10 +1,16 @@
-var webpack = require('webpack')
+// Dev-server that is accepts component to wrap as the third argument.
+// Starts a webpack dev server on port 3000
+var component_to_render = process.argv[2]
+if (component_to_render === undefined) {
+  throw new Error('You need to specify which component to render!')
+}
 var WebpackDevServer = require('webpack-dev-server')
-var config = require('./webpack.config')
+var compiler = require('./lib/compiler.js')(component_to_render)
 
-const port = process.env.PORT || 3000
+var port = process.env.PORT || 3000
 
-new WebpackDevServer(webpack(config), {
+new WebpackDevServer(compiler, {
+  contentBase: __dirname + '/public',
   publicPath: '/',
   hot: true,
   historyApiFallback: true,

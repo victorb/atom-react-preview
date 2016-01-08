@@ -1,16 +1,14 @@
+# TODO Fix this file to be A LOT simpler. There is things here that should be nowhere really
 fs = require 'fs'
 fse = require 'fs-extra'
 {CompositeDisposable, Disposable} = require 'atom'
-{$, $$$, ScrollView}  = require 'atom-space-pen-views'
-path                  = require 'path'
-os                    = require 'os'
-ReactDOM = require('react-dom')
-ReactDOMServer = require('react-dom/server')
-React = require('react')
-babel = require('babel-core')
-find_component_proptypes = require('./find_component_proptypes')
-renderer = require('./renderer')
-window.find_component_proptypes = find_component_proptypes
+{$, $$$, ScrollView} = require 'atom-space-pen-views'
+path = require 'path'
+os = require 'os'
+child_process = require 'child_process'
+spawn = child_process.spawn
+
+did_bootstrap = false
 
 module.exports =
 class AtomReactPreviewView extends ScrollView
@@ -18,8 +16,9 @@ class AtomReactPreviewView extends ScrollView
 
   editorSub           : null
   onDidChangeTitle    : -> new Disposable()
-  onDidChangeModified : -> new Disposable()
+  # onDidChangeModified : -> new Disposable()
   componentState : {}
+  webpackProcess: null
 
   @deserialize: (state) ->
     new AtomReactPreviewView(state)
@@ -46,13 +45,9 @@ class AtomReactPreviewView extends ScrollView
     editorId     : @editorId
 
   destroy: ->
-    # @unsubscribe()
     @editorSub.dispose()
-
-  subscribeToFilePath: (filePath) ->
-    @trigger 'title-changed'
-    @handleEvents()
-    @renderHTML()
+    @webpackProcess.kill 'SIGQUIT'
+    did_bootstrap = false
 
   resolveEditor: (editorId) ->
     resolve = =>
@@ -80,17 +75,9 @@ class AtomReactPreviewView extends ScrollView
 
   handleEvents: =>
 
-    changeHandler = =>
-      @renderHTML()
-      pane = atom.workspace.paneForURI(@getURI())
-      if pane? and pane isnt atom.workspace.getActivePane()
-        pane.activateItem(this)
-
     @editorSub = new CompositeDisposable
 
     if @editor?
-      @editorSub.add @editor.onDidSave changeHandler
-      #@editorSub.add @editor.onDidStopChanging changeHandler
       @editorSub.add @editor.onDidChangePath => @trigger 'title-changed'
 
   renderHTML: ->
@@ -98,61 +85,28 @@ class AtomReactPreviewView extends ScrollView
     if @editor?
       @renderHTMLCode()
 
-  save: (callback) ->
-    setTimeout(() =>
-      callback()
-    , 0)
-
   updateComponents: (new_props) ->
     @componentState = new_props
     @renderHTMLCode()
 
   renderHTMLCode: () ->
     path = @editor.getPath()
-    window.editor = @editor
-    # TODO remove this file when closing...
-    tmpFile = path + '.reactpreview.tmp'
-    if not atom.config.get("atom-react-preview.triggerOnSave") and @editor.getPath()? then @save () =>
-      iframe = document.createElement("iframe")
-      # Fix from @kwaak (https://github.com/webBoxio/atom-html-preview/issues/1/#issxuecomment-49639162)
-      # Allows for the use of relative resources (scripts, styles)
-      iframe.setAttribute("sandbox", "allow-scripts allow-same-origin")
-
-
-      # We need to use a temporary file to be able to compile with babel in atom...
-      data = fs.readFileSync(path)
-      fd = fs.openSync(tmpFile, 'w+')
-      buffer = new Buffer("'use babel';\n")
-      fs.writeSync(fd, buffer, 0, buffer.length)
-      fs.writeSync(fd, data, 0, data.length)
-      fs.close(fd)
-
-      try
-        # TODO WHAT?! Why require places the cache in /private? Who knows...
-        delete require.cache[tmpFile]
-        subcomponent_to_render = React.createElement(require(tmpFile), @componentState)
-      catch err
-        atom.notifications.addError('Error parsing React component!', {detail: 'Something went wrong rendering your component "'+@editor.getTitle()+'"\n\n\nCheck for syntax-errors.\n\n\n Full Message:\n\n\n' + err.toString(), dismissable: true})
-      component_to_render = React.createElement(renderer, {
-        dispatch: @updateComponents.bind(this)
-        component_props: @componentState
-        }, subcomponent_to_render)
-      #component_to_render = React.createElement(require(path))
-      html_string = ReactDOMServer.renderToString(component_to_render)
-      iframe.src = "data:text/html;charset=utf-8," + escape(html_string);
-      @html $ iframe
-      window.component_to_render = component_to_render
-      window.React = React
-      window.iframe = iframe
-      iframe.onload = () =>
-        ReactDOM.render(
-          component_to_render,
-          iframe.contentDocument.body)
-      atom.commands.dispatch 'atom-react-preview', 'react-changed'
+    @webpackProcess = spawn('node', ['dev-server.js', path])
+    @webpackProcess.on('close', (code) =>
+      console.log('webpack child process exited with code ' + code)
+    )
+    @webpackProcess.stdout.on('data', (data) =>
+      # console.log(data.toString())
+      if data.toString().indexOf('bundle is now VALID.') != -1
+        if did_bootstrap is false
+          did_bootstrap = true
+          iframe = document.createElement("iframe")
+          iframe.setAttribute("src", "http://localhost:3000")
+          @html $ iframe
+    )
 
   getTitle: ->
     if @editor?
-      # "#{componentName} Preview"
       "#{@editor.getTitle()} Preview"
     else
       "React Preview"
