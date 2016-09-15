@@ -1,5 +1,7 @@
 # Atom React Preview - [Github](https://github.com/VictorBjelkholm/atom-react-preview) - [Atom.io](https://atom.io/packages/atom-react-preview)
 
+[![deprecated](http://badges.github.io/stability-badges/dist/deprecated.svg)](http://github.com/badges/stability-badges)
+
 Preview your React components directly in Atom. Works best for stateless components.
 
 ![Atom React Preview](demo.gif)
